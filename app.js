@@ -1,81 +1,101 @@
 /**
- * TaskFlow JS Engine - Pure JavaScript Single Page Application Engine
+ * Sticky Wall Engine - Pure JavaScript SPA matching Reference UI Design
  */
 
 document.addEventListener('DOMContentLoaded', () => {
-  const STORAGE_KEY = 'taskflow_js_tasks';
+  const STORAGE_KEY = 'sticky_wall_cards';
+  const LISTS_KEY = 'sticky_wall_lists';
+  const TAGS_KEY = 'sticky_wall_tags';
 
   // Application State
-  let tasks = loadTasksFromStorage();
-  let currentFilter = 'all';
+  let cards = loadData(STORAGE_KEY, getSeedCards());
+  let customLists = loadData(LISTS_KEY, ['Personal', 'Work', 'List 1']);
+  let customTags = loadData(TAGS_KEY, [{ name: 'Tag 1', color: 'cyan' }, { name: 'Tag 2', color: 'pink' }]);
+
+  let activeView = 'sticky-wall';
+  let activeListFilter = null;
   let currentSearch = '';
 
   // DOM Elements
-  const quickTaskForm = document.getElementById('quickTaskForm');
-  const taskSearchInput = document.getElementById('taskSearchInput');
-  const filterTabs = document.querySelectorAll('.tab-btn');
-  const taskListContainer = document.getElementById('taskListContainer');
+  const stickyGrid = document.getElementById('stickyGrid');
+  const pageTitle = document.getElementById('pageTitle');
+  const sidebarSearchInput = document.getElementById('sidebarSearchInput');
+  const navItems = document.querySelectorAll('.nav-item');
+  const listsContainer = document.getElementById('listsContainer');
+  const tagsContainer = document.getElementById('tagsContainer');
 
-  // Initial Seeding & Setup
-  if (tasks.length === 0) {
-    tasks = getSeedData();
-    saveTasksToStorage();
-  }
+  // Modal Elements
+  const cardModal = document.getElementById('cardModal');
+  const modalTitle = document.getElementById('modalTitle');
+  const cardForm = document.getElementById('cardForm');
+  const cardIdInput = document.getElementById('cardId');
+  const cardTitleInput = document.getElementById('cardTitleInput');
+  const cardContentInput = document.getElementById('cardContentInput');
+  const cardListSelect = document.getElementById('cardListSelect');
+  const closeModalBtn = document.getElementById('closeModalBtn');
+  const cancelModalBtn = document.getElementById('cancelModalBtn');
+  const addNewListBtn = document.getElementById('addNewListBtn');
+  const addNewTagBtn = document.getElementById('addNewTagBtn');
 
+  // Initial Setup
   initEventListeners();
+  renderLists();
+  renderTags();
   renderApp();
 
   /* ==========================================================================
-     State & Storage
+     Storage & Data Helpers
      ========================================================================== */
-  function loadTasksFromStorage() {
+  function loadData(key, defaultValue) {
     try {
-      const data = localStorage.getItem(STORAGE_KEY);
-      return data ? JSON.parse(data) : [];
+      const data = localStorage.getItem(key);
+      return data ? JSON.parse(data) : defaultValue;
     } catch (e) {
-      console.error('Failed to parse localStorage tasks:', e);
-      return [];
+      return defaultValue;
     }
   }
 
-  function saveTasksToStorage() {
+  function saveData(key, value) {
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
+      localStorage.setItem(key, JSON.stringify(value));
     } catch (e) {
-      console.error('Failed to save to localStorage:', e);
+      console.error('Storage save error:', e);
     }
   }
 
-  function getSeedData() {
-    const today = new Date();
-    const futureDate = new Date(today);
-    futureDate.setDate(today.getDate() + 2);
-
+  function getSeedCards() {
     return [
       {
-        id: 101,
-        title: 'Design System Review',
-        description: 'Review dark mode glassmorphism UI components and color palette.',
-        priority: 'HIGH',
-        due_date: futureDate.toISOString().split('T')[0],
-        is_completed: false,
-        created_at: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
-        notes: [
-          { id: 201, content: 'Check contrast ratios on high-priority badges.', is_pinned: true, created_at: 'Just now' },
-          { id: 202, content: 'Ensure responsive design looks crisp on mobile screens.', is_pinned: false, created_at: '5 mins ago' }
-        ]
+        id: 1,
+        title: 'Social Media',
+        content: '- Plan social content\n- Build content calendar\n- Plan promotion and distribution',
+        color: 'yellow',
+        list: 'Personal',
+        created_at: new Date().toISOString()
       },
       {
-        id: 102,
-        title: 'Build Pure JS Single-Page App',
-        description: 'Refactored backend architecture to zero-dependency client-side SPA.',
-        priority: 'MEDIUM',
-        due_date: today.toISOString().split('T')[0],
-        is_completed: false,
-        created_at: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
-        notes: [
-          { id: 203, content: 'Implemented localStorage persistence for instant offline usage.', is_pinned: true, created_at: '10 mins ago' }
-        ]
+        id: 2,
+        title: 'Content Strategy',
+        content: 'Would need time to get insights (goals, personals, budget, audits), but after, it would be good to focus on assembling my team (start with SEO specialist, then perhaps an email marketer?). Also need to brainstorm on tooling.',
+        color: 'cyan',
+        list: 'Work',
+        created_at: new Date().toISOString()
+      },
+      {
+        id: 3,
+        title: 'Email A/B Tests',
+        content: '- Subject lines\n- Sender\n- CTA\n- Sending times',
+        color: 'pink',
+        list: 'Work',
+        created_at: new Date().toISOString()
+      },
+      {
+        id: 4,
+        title: 'Banner Ads',
+        content: 'Notes from the workshop:\n- Sizing matters\n- Choose distinctive imagery\n- The landing page must match the display ad',
+        color: 'orange',
+        list: 'List 1',
+        created_at: new Date().toISOString()
       }
     ];
   }
@@ -84,305 +104,327 @@ document.addEventListener('DOMContentLoaded', () => {
      Event Listeners Initializer
      ========================================================================== */
   function initEventListeners() {
-    if (quickTaskForm) {
-      quickTaskForm.addEventListener('submit', (e) => {
-        e.preventDefault();
-        handleTaskCreate();
-      });
-    }
+    // Sidebar Navigation Click
+    document.querySelector('.sidebar').addEventListener('click', (e) => {
+      const navItem = e.target.closest('.nav-item');
+      if (navItem) {
+        document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+        navItem.classList.add('active');
 
-    if (taskSearchInput) {
-      let searchTimeout;
-      taskSearchInput.addEventListener('input', (e) => {
-        clearTimeout(searchTimeout);
-        searchTimeout = setTimeout(() => {
+        if (navItem.dataset.view) {
+          activeView = navItem.dataset.view;
+          activeListFilter = null;
+          pageTitle.textContent = getTitleForView(activeView);
+        } else if (navItem.dataset.list) {
+          activeView = 'list';
+          activeListFilter = navItem.dataset.list;
+          pageTitle.textContent = activeListFilter;
+        }
+        renderApp();
+      }
+    });
+
+    // Search Input Handler
+    if (sidebarSearchInput) {
+      let timeout;
+      sidebarSearchInput.addEventListener('input', (e) => {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => {
           currentSearch = e.target.value.toLowerCase().trim();
           renderApp();
-        }, 200);
+        }, 150);
       });
     }
 
-    filterTabs.forEach(tab => {
-      tab.addEventListener('click', () => {
-        filterTabs.forEach(t => t.classList.remove('active'));
-        tab.classList.add('active');
-        currentFilter = tab.dataset.filter || 'all';
-        renderApp();
-      });
+    // Modal Close Triggers
+    if (closeModalBtn) closeModalBtn.addEventListener('click', closeModal);
+    if (cancelModalBtn) cancelModalBtn.addEventListener('click', closeModal);
+    cardModal.addEventListener('click', (e) => {
+      if (e.target === cardModal) closeModal();
     });
+
+    // Submit Card Form
+    if (cardForm) {
+      cardForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        saveCardFromModal();
+      });
+    }
+
+    // Add New List Button
+    if (addNewListBtn) {
+      addNewListBtn.addEventListener('click', () => {
+        const name = prompt('Enter new list name:');
+        if (name && name.trim()) {
+          const listName = name.trim();
+          if (!customLists.includes(listName)) {
+            customLists.push(listName);
+            saveData(LISTS_KEY, customLists);
+            renderLists();
+            showToast(`List "${listName}" created!`, 'success');
+          }
+        }
+      });
+    }
+
+    // Add New Tag Button
+    if (addNewTagBtn) {
+      addNewTagBtn.addEventListener('click', () => {
+        const tagName = prompt('Enter new tag name:');
+        if (tagName && tagName.trim()) {
+          const colors = ['cyan', 'pink', 'yellow', 'orange', 'green'];
+          const randomColor = colors[Math.floor(Math.random() * colors.length)];
+          customTags.push({ name: tagName.trim(), color: randomColor });
+          saveData(TAGS_KEY, customTags);
+          renderTags();
+          showToast(`Tag "${tagName.trim()}" added!`, 'success');
+        }
+      });
+    }
   }
 
   /* ==========================================================================
-     Task Operations
+     Card CRUD & Modal Actions
      ========================================================================== */
-  function handleTaskCreate() {
-    const titleInput = document.getElementById('taskTitle');
-    const descInput = document.getElementById('taskDesc');
-    const prioritySelect = document.getElementById('taskPriority');
-    const dueDateInput = document.getElementById('taskDueDate');
+  function openModalForCreate() {
+    modalTitle.textContent = 'New Sticky Note';
+    cardIdInput.value = '';
+    cardTitleInput.value = '';
+    cardContentInput.value = '';
+    updateListSelectOptions();
+    
+    // Default color yellow
+    const yellowRadio = document.querySelector('input[name="cardColor"][value="yellow"]');
+    if (yellowRadio) yellowRadio.checked = true;
 
-    const title = titleInput.value.trim();
+    cardModal.classList.add('open');
+    cardTitleInput.focus();
+  }
+
+  function openModalForEdit(card) {
+    modalTitle.textContent = 'Edit Sticky Note';
+    cardIdInput.value = card.id;
+    cardTitleInput.value = card.title;
+    cardContentInput.value = card.content;
+    updateListSelectOptions();
+    cardListSelect.value = card.list || 'Personal';
+
+    const colorRadio = document.querySelector(`input[name="cardColor"][value="${card.color}"]`);
+    if (colorRadio) colorRadio.checked = true;
+
+    cardModal.classList.add('open');
+  }
+
+  function closeModal() {
+    cardModal.classList.remove('open');
+  }
+
+  function updateListSelectOptions() {
+    if (!cardListSelect) return;
+    cardListSelect.innerHTML = customLists.map(l => `<option value="${escapeHtml(l)}">${escapeHtml(l)}</option>`).join('');
+  }
+
+  function saveCardFromModal() {
+    const id = cardIdInput.value ? parseInt(cardIdInput.value) : null;
+    const title = cardTitleInput.value.trim();
+    const content = cardContentInput.value.trim();
+    const color = document.querySelector('input[name="cardColor"]:checked')?.value || 'yellow';
+    const list = cardListSelect.value;
+
     if (!title) {
-      showToast('Please enter a task title', 'error');
+      showToast('Please enter a title', 'error');
       return;
     }
 
-    const newTask = {
-      id: Date.now(),
-      title: title,
-      description: descInput ? descInput.value.trim() : '',
-      priority: prioritySelect ? prioritySelect.value : 'MEDIUM',
-      due_date: dueDateInput ? dueDateInput.value : '',
-      is_completed: false,
-      created_at: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
-      notes: []
-    };
+    if (id) {
+      // Edit existing card
+      const card = cards.find(c => c.id === id);
+      if (card) {
+        card.title = title;
+        card.content = content;
+        card.color = color;
+        card.list = list;
+        showToast('Card updated!', 'success');
+      }
+    } else {
+      // Create new card
+      const newCard = {
+        id: Date.now(),
+        title: title,
+        content: content,
+        color: color,
+        list: list,
+        created_at: new Date().toISOString()
+      };
+      cards.push(newCard);
+      showToast('New Sticky Note added!', 'success');
+    }
 
-    tasks.unshift(newTask);
-    saveTasksToStorage();
-
-    titleInput.value = '';
-    if (descInput) descInput.value = '';
-    if (dueDateInput) dueDateInput.value = '';
-
-    showToast('Task created successfully!', 'success');
+    saveData(STORAGE_KEY, cards);
+    closeModal();
     renderApp();
   }
 
-  window.toggleTaskComplete = function(taskId) {
-    const task = tasks.find(t => t.id === taskId);
-    if (task) {
-      task.is_completed = !task.is_completed;
-      saveTasksToStorage();
-      showToast(`Task marked as ${task.is_completed ? 'completed' : 'active'}.`, 'success');
-      renderApp();
-    }
-  };
+  window.deleteCard = function(id, event) {
+    if (event) event.stopPropagation();
+    if (!confirm('Delete this sticky note?')) return;
 
-  window.deleteTask = function(taskId) {
-    if (!confirm('Are you sure you want to delete this task?')) return;
-    tasks = tasks.filter(t => t.id !== taskId);
-    saveTasksToStorage();
-    showToast('Task deleted', 'success');
+    cards = cards.filter(c => c.id !== id);
+    saveData(STORAGE_KEY, cards);
+    showToast('Note deleted', 'success');
     renderApp();
   };
 
-  /* ==========================================================================
-     Notes Operations
-     ========================================================================== */
-  window.toggleNotesDrawer = function(taskId) {
-    const drawer = document.getElementById(`notes-drawer-${taskId}`);
-    if (drawer) {
-      drawer.classList.toggle('open');
-    }
-  };
-
-  window.addNoteToTask = function(taskId, event) {
-    event.preventDefault();
-    const input = document.getElementById(`note-input-${taskId}`);
-    const content = input ? input.value.trim() : '';
-
-    if (!content) {
-      showToast('Note content cannot be empty', 'error');
-      return;
-    }
-
-    const task = tasks.find(t => t.id === taskId);
-    if (task) {
-      const newNote = {
-        id: Date.now(),
-        content: content,
-        is_pinned: false,
-        created_at: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-      };
-      task.notes.unshift(newNote);
-      saveTasksToStorage();
-      input.value = '';
-      showToast('Note added!', 'success');
-      renderApp();
-      // Keep drawer open after adding note
-      setTimeout(() => window.toggleNotesDrawer(taskId), 50);
-    }
-  };
-
-  window.deleteNote = function(noteId, taskId) {
-    const task = tasks.find(t => t.id === taskId);
-    if (task) {
-      task.notes = task.notes.filter(n => n.id !== noteId);
-      saveTasksToStorage();
-      showToast('Note deleted', 'success');
-      renderApp();
-      setTimeout(() => window.toggleNotesDrawer(taskId), 50);
-    }
-  };
-
-  window.togglePinNote = function(noteId, taskId) {
-    const task = tasks.find(t => t.id === taskId);
-    if (task) {
-      const note = task.notes.find(n => n.id === noteId);
-      if (note) {
-        note.is_pinned = !note.is_pinned;
-        // Sort notes so pinned stay on top
-        task.notes.sort((a, b) => (b.is_pinned ? 1 : 0) - (a.is_pinned ? 1 : 0));
-        saveTasksToStorage();
-        showToast(note.is_pinned ? 'Note pinned' : 'Note unpinned', 'success');
-        renderApp();
-        setTimeout(() => window.toggleNotesDrawer(taskId), 50);
-      }
+  window.editCard = function(id, event) {
+    if (event) event.stopPropagation();
+    const card = cards.find(c => c.id === id);
+    if (card) {
+      openModalForEdit(card);
     }
   };
 
   /* ==========================================================================
-     Rendering & UI Updates
+     Rendering Functions
      ========================================================================== */
   function renderApp() {
-    const filteredTasks = filterTasks(tasks);
-    renderTasksList(filteredTasks);
-    updateStats(tasks);
+    const filteredCards = getFilteredCards();
+    renderGrid(filteredCards);
+    updateCounts();
   }
 
-  function filterTasks(taskList) {
-    return taskList.filter(task => {
-      // Status filter
-      if (currentFilter === 'active' && task.is_completed) return false;
-      if (currentFilter === 'completed' && !task.is_completed) return false;
-      if (currentFilter === 'high' && task.priority !== 'HIGH') return false;
+  function getFilteredCards() {
+    return cards.filter(card => {
+      // View or List filter
+      if (activeView === 'list' && activeListFilter) {
+        if (card.list !== activeListFilter) return false;
+      }
 
-      // Search filter
+      // Search Filter
       if (currentSearch) {
-        const matchesTitle = task.title.toLowerCase().includes(currentSearch);
-        const matchesDesc = task.description && task.description.toLowerCase().includes(currentSearch);
-        const matchesNotes = task.notes && task.notes.some(n => n.content.toLowerCase().includes(currentSearch));
-        if (!matchesTitle && !matchesDesc && !matchesNotes) return false;
+        const titleMatch = card.title.toLowerCase().includes(currentSearch);
+        const bodyMatch = card.content && card.content.toLowerCase().includes(currentSearch);
+        if (!titleMatch && !bodyMatch) return false;
       }
 
       return true;
     });
   }
 
-  function renderTasksList(taskList) {
-    if (!taskListContainer) return;
+  function renderGrid(cardList) {
+    if (!stickyGrid) return;
 
-    if (!taskList || taskList.length === 0) {
-      taskListContainer.innerHTML = `
-        <div class="empty-state">
-          <div class="empty-icon">📝</div>
-          <h3>No tasks found</h3>
-          <p>Create a task above or adjust your search filters.</p>
+    let html = cardList.map(card => `
+      <div class="sticky-card ${card.color}" onclick="editCard(${card.id}, event)">
+        <div class="card-actions">
+          <button class="card-action-btn" onclick="editCard(${card.id}, event)" title="Edit Card">✏️</button>
+          <button class="card-action-btn danger" onclick="deleteCard(${card.id}, event)" title="Delete Card">🗑️</button>
         </div>
-      `;
-      return;
+
+        <div>
+          <div class="card-title">${escapeHtml(card.title)}</div>
+          <div class="card-body">${escapeHtml(card.content)}</div>
+        </div>
+      </div>
+    `).join('');
+
+    // Add New Card Tile (Always positioned at end of grid)
+    html += `
+      <div class="add-card-tile" id="addTileBtn">
+        <span class="plus-icon">+</span>
+      </div>
+    `;
+
+    stickyGrid.innerHTML = html;
+
+    // Attach click listener to Add Tile
+    const addTileBtn = document.getElementById('addTileBtn');
+    if (addTileBtn) {
+      addTileBtn.addEventListener('click', openModalForCreate);
     }
+  }
 
-    const todayStr = new Date().toISOString().split('T')[0];
+  function renderLists() {
+    if (!listsContainer) return;
+    const colors = ['yellow', 'cyan', 'orange', 'green', 'pink', 'purple'];
 
-    taskListContainer.innerHTML = taskList.map(task => {
-      const isOverdue = task.due_date && !task.is_completed && task.due_date < todayStr;
-      const notesCount = task.notes ? task.notes.length : 0;
+    listsContainer.innerHTML = customLists.map((listName, idx) => {
+      const color = colors[idx % colors.length];
+      const count = cards.filter(c => c.list === listName).length;
+      const isActive = activeView === 'list' && activeListFilter === listName;
 
       return `
-        <div class="task-card ${task.is_completed ? 'completed' : ''} priority-${task.priority}" id="task-card-${task.id}">
-          <div class="task-header">
-            <label class="custom-checkbox">
-              <input type="checkbox" ${task.is_completed ? 'checked' : ''} onchange="toggleTaskComplete(${task.id})">
-              <span class="checkmark"></span>
-            </label>
-
-            <div class="task-content">
-              <div class="task-title">${escapeHtml(task.title)}</div>
-              ${task.description ? `<div class="task-description">${escapeHtml(task.description)}</div>` : ''}
-
-              <div class="task-meta">
-                <span class="badge badge-${task.priority.toLowerCase()}">${task.priority}</span>
-                ${task.due_date ? `
-                  <span class="date-badge ${isOverdue ? 'overdue' : ''}">
-                    📅 ${task.due_date} ${isOverdue ? '(Overdue)' : ''}
-                  </span>
-                ` : ''}
-                
-                <button class="notes-count-badge" onclick="toggleNotesDrawer(${task.id})">
-                  💬 ${notesCount} ${notesCount === 1 ? 'Note' : 'Notes'}
-                </button>
-              </div>
-            </div>
-
-            <div class="task-actions">
-              <button class="icon-btn danger" onclick="deleteTask(${task.id})" title="Delete Task">
-                🗑️
-              </button>
-            </div>
-          </div>
-
-          <!-- Single Page Inline Notes Expander -->
-          <div class="notes-drawer" id="notes-drawer-${task.id}">
-            <div class="notes-header">
-              <h4>📌 Notes & Updates (${notesCount})</h4>
-            </div>
-
-            <form class="add-note-form" onsubmit="addNoteToTask(${task.id}, event)">
-              <input type="text" class="form-control" id="note-input-${task.id}" placeholder="Type a note for this task..." required>
-              <button type="submit" class="btn-primary" style="padding: 8px 16px;">Add Note</button>
-            </form>
-
-            <div class="notes-list">
-              ${notesCount > 0 ? task.notes.map(note => `
-                <div class="note-item ${note.is_pinned ? 'pinned' : ''}">
-                  <div>
-                    <div class="note-content">${escapeHtml(note.content)}</div>
-                    <div class="note-meta">${note.is_pinned ? '📌 Pinned • ' : ''}${note.created_at}</div>
-                  </div>
-                  <div class="note-actions">
-                    <button class="icon-btn" onclick="togglePinNote(${note.id}, ${task.id})" title="${note.is_pinned ? 'Unpin' : 'Pin'}">
-                      ${note.is_pinned ? '📌' : '📍'}
-                    </button>
-                    <button class="icon-btn danger" onclick="deleteNote(${note.id}, ${task.id})" title="Delete Note">
-                      ❌
-                    </button>
-                  </div>
-                </div>
-              `).join('') : '<p style="font-size: 0.85rem; color: var(--text-muted);">No notes added yet. Type above to add notes to this task!</p>'}
-            </div>
-          </div>
-        </div>
+        <li class="nav-item ${isActive ? 'active' : ''}" data-list="${escapeHtml(listName)}">
+          <span class="nav-label"><span class="color-sq ${color}"></span> ${escapeHtml(listName)}</span>
+          <span class="count-badge">${count}</span>
+        </li>
       `;
     }).join('');
   }
 
-  function updateStats(taskList) {
-    const todayStr = new Date().toISOString().split('T')[0];
-    const total = taskList.length;
-    const completed = taskList.filter(t => t.is_completed).length;
-    const pending = total - completed;
-    const overdue = taskList.filter(t => t.due_date && !t.is_completed && t.due_date < todayStr).length;
+  function renderTags() {
+    if (!tagsContainer) return;
+    const tagsHtml = customTags.map(tag => `
+      <span class="tag-pill ${tag.color}">${escapeHtml(tag.name)}</span>
+    `).join('');
 
-    document.getElementById('statTotal').textContent = total;
-    document.getElementById('statPending').textContent = pending;
-    document.getElementById('statCompleted').textContent = completed;
-    document.getElementById('statOverdue').textContent = overdue;
+    tagsContainer.innerHTML = tagsHtml + `<button class="add-tag-btn" id="addNewTagBtn">+ Add Tag</button>`;
+
+    const newAddTagBtn = document.getElementById('addNewTagBtn');
+    if (newAddTagBtn) {
+      newAddTagBtn.addEventListener('click', () => {
+        const tagName = prompt('Enter new tag name:');
+        if (tagName && tagName.trim()) {
+          const colors = ['cyan', 'pink', 'yellow', 'orange', 'green'];
+          const randomColor = colors[Math.floor(Math.random() * colors.length)];
+          customTags.push({ name: tagName.trim(), color: randomColor });
+          saveData(TAGS_KEY, customTags);
+          renderTags();
+          showToast(`Tag "${tagName.trim()}" added!`, 'success');
+        }
+      });
+    }
+  }
+
+  function updateCounts() {
+    const upcomingCount = document.getElementById('countUpcoming');
+    const todayCount = document.getElementById('countToday');
+
+    if (upcomingCount) upcomingCount.textContent = cards.length * 3; // matching demo design scale
+    if (todayCount) todayCount.textContent = cards.length;
+
+    renderLists();
+  }
+
+  function getTitleForView(view) {
+    switch (view) {
+      case 'upcoming': return 'Upcoming Tasks';
+      case 'today': return "Today's Tasks";
+      case 'calendar': return 'Calendar Overview';
+      case 'sticky-wall':
+      default:
+        return 'Sticky Wall';
+    }
   }
 
   function showToast(message, type = 'info') {
-    let toastContainer = document.getElementById('toastContainer');
-    if (!toastContainer) {
-      toastContainer = document.createElement('div');
-      toastContainer.id = 'toastContainer';
-      toastContainer.className = 'toast-container';
-      document.body.appendChild(toastContainer);
+    let container = document.getElementById('toastContainer');
+    if (!container) {
+      container = document.createElement('div');
+      container.id = 'toastContainer';
+      container.className = 'toast-container';
+      document.body.appendChild(container);
     }
 
     const toast = document.createElement('div');
     toast.className = `toast ${type}`;
-    toast.innerHTML = `
-      <span>${type === 'success' ? '✅' : type === 'error' ? '⚠️' : 'ℹ️'}</span>
-      <div>${escapeHtml(message)}</div>
-    `;
+    toast.innerHTML = `<span>${type === 'success' ? '✅' : 'ℹ️'}</span> ${escapeHtml(message)}`;
 
-    toastContainer.appendChild(toast);
+    container.appendChild(toast);
     setTimeout(() => {
       toast.style.opacity = '0';
-      toast.style.transform = 'translateX(40px)';
-      setTimeout(() => toast.remove(), 300);
-    }, 3000);
+      toast.style.transform = 'translateX(30px)';
+      setTimeout(() => toast.remove(), 250);
+    }, 2500);
   }
 
   function escapeHtml(str) {

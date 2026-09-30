@@ -1,26 +1,27 @@
-# TaskFlow — Single-Page To-Do & Task Notes App
+# Sticky Wall — Task & Notes Dashboard
 
-**TaskFlow** is a modern Single-Page Application (SPA) built with HTML5, CSS3, and Vanilla JavaScript. It delivers a fast task management experience with inline notes support, priority tracking, and zero full-page reloads.
+**Sticky Wall** is a modern Single-Page Application (SPA) built with HTML5, CSS3, and Vanilla JavaScript with `localStorage` persistence. It replicates the pastel sticky note dashboard UI reference, providing an intuitive canvas to organize thoughts, tasks, and notes into color-coded cards.
 
 ---
 
 ## ✨ Features
 
-- **Single-Page Architecture (SPA)**: All operations—creating tasks, toggling completion, setting priorities/due dates, live search, and note drawer management—happen seamlessly on one screen.
-- **Embedded Task Notes**: Expand inline drawers on any task card to add, pin, and delete multiple notes per task.
-- **Priority & Due Date Tracking**: Assign High, Medium, or Low priorities with glowing badges and automatic overdue badges.
-- **Real-Time Client-Side Search & Filter**: Filter tasks instantly by status (`All`, `Active`, `Completed`, `High Priority`) and search across titles, descriptions, and note content.
-- **Dark Glassmorphism UI**: Styled with modern typography (Plus Jakarta Sans), smooth micro-animations, custom checkmarks, and toast notifications.
-- **Local Persistence**: Saves all tasks and notes reliably in `localStorage`.
+- **Sidebar Navigation**: Left sidebar featuring `Menu` header, real-time search input (`Q Search`), `TASKS` views (`Upcoming`, `Today`, `Calendar`, `Sticky Wall`), `LISTS` categories (`Personal`, `Work`, `List 1`), and `TAGS`.
+- **Pastel Sticky Note Cards**: Color-coded cards (Yellow 💛, Cyan 💙, Pink 💖, Orange 🧡, Green 💚, Purple 💜) supporting bullet lists and body notes.
+- **Interactive Creation & Editing**: Click the prominent `+` tile to open a modal for creating new sticky notes, picking custom colors, or assigning categories.
+- **Card Actions**: Edit card details or delete notes with instant hover controls.
+- **Dynamic Category & Tag Management**: Add custom list categories (`+ Add New List`) and tag pills (`+ Add Tag`) dynamically.
+- **Real-Time Search & Filtering**: Filter sticky notes in real-time by search query or sidebar list selection.
+- **Local Persistence**: Automatic offline data persistence using `localStorage`.
 
 ---
 
 ## 📁 Project Structure
 
-- `index.html` — Single page layout structure.
-- `styles.css` — Glassmorphism CSS design system.
-- `app.js` — Core JavaScript SPA engine & `localStorage` manager.
-- `vercel.json` — Static deployment configuration for Vercel.
+- `index.html` — Sticky Wall dashboard layout structure.
+- `styles.css` — Replicated Sticky Wall pastel CSS design system.
+- `app.js` — Client-side SPA engine & `localStorage` manager.
+- `vercel.json` — Static site deployment configuration for Vercel.
 
 ---
 
@@ -35,4 +36,4 @@ cd toDoApp
 npx serve .
 ```
 
-Open `http://localhost:3000` or double-click `index.html` to run directly in any web browser!
+Open `http://localhost:3000` or open `index.html` in any web browser!

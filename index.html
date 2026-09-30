@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>TaskFlow — Single Page To-Do & Task Notes</title>
+  <title>Sticky Wall — Task & Notes Dashboard</title>
   
-  <!-- Modern Google Fonts -->
+  <!-- Modern Typography (Plus Jakarta Sans) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -15,87 +15,172 @@
 </head>
 <body>
 
-  <div class="app-container">
-    <!-- Header & Dashboard Stats -->
-    <header class="header-card">
-      <div class="brand-title">
-        <span class="brand-icon">⚡</span>
-        <div>
-          <h1>TaskFlow JS</h1>
-          <p style="font-size: 0.85rem; color: var(--text-muted);">Manage your tasks & inline notes on a single screen</p>
-        </div>
-      </div>
+  <!-- Outer Viewport Wrapper (Soft Sage Background) -->
+  <div class="viewport-wrapper">
 
-      <div class="stats-grid">
-        <div class="stat-box">
-          <div class="stat-value" id="statTotal">0</div>
-          <div class="stat-label">Total</div>
-        </div>
-        <div class="stat-box">
-          <div class="stat-value" id="statPending" style="color: var(--accent-cyan);">0</div>
-          <div class="stat-label">Active</div>
-        </div>
-        <div class="stat-box">
-          <div class="stat-value" id="statCompleted" style="color: var(--status-completed);">0</div>
-          <div class="stat-label">Done</div>
-        </div>
-        <div class="stat-box">
-          <div class="stat-value" id="statOverdue" style="color: var(--status-high);">0</div>
-          <div class="stat-label">Overdue</div>
-        </div>
-      </div>
-    </header>
+    <!-- Main Container Card -->
+    <div class="app-card">
+      
+      <!-- Left Sidebar -->
+      <aside class="sidebar">
+        <div class="sidebar-top">
+          <!-- Menu Header -->
+          <div class="sidebar-header">
+            <h2>Menu</h2>
+            <button class="hamburger-btn" id="menuToggleBtn" title="Toggle Menu">≡</button>
+          </div>
 
-    <!-- Quick Task Creation Panel -->
-    <section class="controls-card">
-      <form id="quickTaskForm">
-        <div class="task-form-grid">
-          <input type="text" id="taskTitle" class="form-control" placeholder="What needs to be done?" required autocomplete="off">
-          
-          <select id="taskPriority" class="form-select">
-            <option value="MEDIUM">Priority: Med</option>
-            <option value="HIGH">Priority: High ⚡</option>
-            <option value="LOW">Priority: Low</option>
-          </select>
+          <!-- Search Input -->
+          <div class="search-container">
+            <span class="search-icon">🔍</span>
+            <input type="text" id="sidebarSearchInput" placeholder="Search" autocomplete="off">
+          </div>
 
-          <input type="date" id="taskDueDate" class="form-control">
+          <!-- Tasks Section -->
+          <div class="nav-section">
+            <div class="section-title">TASKS</div>
+            <ul class="nav-list">
+              <li class="nav-item" data-view="upcoming">
+                <span class="nav-label"><span class="icon">»</span> Upcoming</span>
+                <span class="count-badge" id="countUpcoming">12</span>
+              </li>
+              <li class="nav-item" data-view="today">
+                <span class="nav-label"><span class="icon">≡</span> Today</span>
+                <span class="count-badge" id="countToday">5</span>
+              </li>
+              <li class="nav-item" data-view="calendar">
+                <span class="nav-label"><span class="icon">📅</span> Calendar</span>
+              </li>
+              <li class="nav-item active" data-view="sticky-wall">
+                <span class="nav-label"><span class="icon">📌</span> Sticky Wall</span>
+              </li>
+            </ul>
+          </div>
 
-          <button type="submit" class="btn-primary">
-            <span>➕</span> Add Task
-          </button>
+          <!-- Lists Section -->
+          <div class="nav-section">
+            <div class="section-title">LISTS</div>
+            <ul class="nav-list" id="listsContainer">
+              <li class="nav-item" data-list="Personal">
+                <span class="nav-label"><span class="color-sq yellow"></span> Personal</span>
+                <span class="count-badge">3</span>
+              </li>
+              <li class="nav-item" data-list="Work">
+                <span class="nav-label"><span class="color-sq cyan"></span> Work</span>
+                <span class="count-badge">3</span>
+              </li>
+              <li class="nav-item" data-list="List 1">
+                <span class="nav-label"><span class="color-sq orange"></span> List 1</span>
+                <span class="count-badge">3</span>
+              </li>
+            </ul>
+            <button class="add-item-btn" id="addNewListBtn">+ Add New List</button>
+          </div>
+
+          <!-- Tags Section -->
+          <div class="nav-section">
+            <div class="section-title">TAGS</div>
+            <div class="tags-container" id="tagsContainer">
+              <span class="tag-pill cyan">Tag 1</span>
+              <span class="tag-pill pink">Tag 2</span>
+              <button class="add-tag-btn" id="addNewTagBtn">+ Add Tag</button>
+            </div>
+          </div>
         </div>
 
-        <div class="desc-toggle-wrapper">
-          <textarea id="taskDesc" class="form-control" placeholder="Add optional details or context..." rows="2" style="margin-top: 10px;"></textarea>
+        <!-- Sidebar Footer -->
+        <div class="sidebar-footer">
+          <button class="footer-link"><span class="icon">⚙</span> Settings</button>
+          <button class="footer-link"><span class="icon">🚪</span> Sign out</button>
         </div>
-      </form>
-    </section>
+      </aside>
 
-    <!-- Search & Filter Bar -->
-    <div class="toolbar-row">
-      <div class="search-box">
-        <span class="search-icon">🔍</span>
-        <input type="text" id="taskSearchInput" class="form-control" placeholder="Search tasks or note contents...">
-      </div>
+      <!-- Right Main Content Canvas -->
+      <main class="main-content">
+        <header class="main-header">
+          <h1 id="pageTitle">Sticky Wall</h1>
+        </header>
 
-      <div class="filter-tabs">
-        <button class="tab-btn active" data-filter="all">All Tasks</button>
-        <button class="tab-btn" data-filter="active">Active</button>
-        <button class="tab-btn" data-filter="completed">Completed</button>
-        <button class="tab-btn" data-filter="high">High Priority</button>
-      </div>
+        <!-- Sticky Notes Grid Stream -->
+        <div class="sticky-grid" id="stickyGrid">
+          <!-- Cards rendered dynamically by app.js -->
+        </div>
+      </main>
+
     </div>
-
-    <!-- Dynamic Task Stream -->
-    <main class="task-list" id="taskListContainer">
-      <!-- Task Cards rendered dynamically via app.js -->
-    </main>
   </div>
 
-  <!-- Toast Alert Notifications -->
-  <div id="toastContainer" class="toast-container"></div>
+  <!-- Create/Edit Card Modal -->
+  <div class="modal-overlay" id="cardModal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 id="modalTitle">New Sticky Note</h3>
+        <button class="close-modal-btn" id="closeModalBtn">&times;</button>
+      </div>
+      <form id="cardForm">
+        <input type="hidden" id="cardId">
 
-  <!-- Main Pure JS Application Engine -->
+        <div class="form-group">
+          <label for="cardTitleInput">Title</label>
+          <input type="text" id="cardTitleInput" placeholder="Note Title (e.g. Social Media)" required>
+        </div>
+
+        <div class="form-group">
+          <label for="cardContentInput">Notes / Checklist Items</label>
+          <textarea id="cardContentInput" rows="5" placeholder="Enter notes paragraph or hyphenated bullet points:&#10;- Plan social content&#10;- Build content calendar" required></textarea>
+        </div>
+
+        <div class="form-group">
+          <label>Sticky Card Color</label>
+          <div class="color-picker-group">
+            <label class="color-option">
+              <input type="radio" name="cardColor" value="yellow" checked>
+              <span class="color-swatch yellow"></span>
+            </label>
+            <label class="color-option">
+              <input type="radio" name="cardColor" value="cyan">
+              <span class="color-swatch cyan"></span>
+            </label>
+            <label class="color-option">
+              <input type="radio" name="cardColor" value="pink">
+              <span class="color-swatch pink"></span>
+            </label>
+            <label class="color-option">
+              <input type="radio" name="cardColor" value="orange">
+              <span class="color-swatch orange"></span>
+            </label>
+            <label class="color-option">
+              <input type="radio" name="cardColor" value="green">
+              <span class="color-swatch green"></span>
+            </label>
+            <label class="color-option">
+              <input type="radio" name="cardColor" value="purple">
+              <span class="color-swatch purple"></span>
+            </label>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="cardListSelect">List Category</label>
+          <select id="cardListSelect">
+            <option value="Personal">Personal</option>
+            <option value="Work">Work</option>
+            <option value="List 1">List 1</option>
+          </select>
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="btn-cancel" id="cancelModalBtn">Cancel</button>
+          <button type="submit" class="btn-save">Save Note</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- Pure JS Script -->
   <script src="app.js"></script>
 </body>
 </html>
