@@ -1,13 +1,13 @@
-# TaskFlow — Single-Page Django To-Do App
+# TaskFlow — Pure JavaScript Single-Page To-Do App
 
-**TaskFlow** is a modern Single-Page Application (SPA) built with Django, HTML5, Vanilla JavaScript, and a dark glassmorphism CSS design system. Manage tasks and attach multiple notes to any task seamlessly on a single screen without page reloads.
+**TaskFlow** is a modern Single-Page Application (SPA) built with HTML5, CSS3, and Vanilla JavaScript with `localStorage` persistence. Manage tasks and attach multiple notes to any task seamlessly on a single screen with zero external dependencies.
 
 ## ✨ Features
 - **Single-Page Architecture**: Dynamic task creation, completion checkmarks, inline note threads, priority tagging, and live search.
 - **Embedded Task Notes**: Attach, pin, and delete multiple notes per task inside interactive inline drawers.
 - **Priorities & Due Dates**: Categorize tasks as High, Medium, or Low priorities with overdue indicators.
-- **Real-Time Filtering**: Instant search and tab filters (All, Active, Completed).
-- **Glassmorphism UI**: Dark mode palette, responsive layout, smooth micro-animations, and toast feedback.
+- **Real-Time Filtering**: Instant client-side search and status tabs (All, Active, Completed, High Priority).
+- **Glassmorphism UI**: Dark mode theme, responsive layout, smooth micro-animations, and toast feedback.
 
 ## 🚀 Quick Start
 ```bash
@@ -15,13 +15,7 @@
 git clone https://github.com/mr-wizzy/to-doApp.git
 cd to-doApp
 
-# Create virtual environment & install dependencies
-python -m venv venv
-.\venv\Scripts\activate
-pip install -r requirements.txt
-
-# Apply migrations & launch server
-python manage.py migrate
-python manage.py runserver
+# Serve locally
+npx serve .
 ```
-Open [http://127.0.0.1:8000/](http://127.0.0.1:8000/) in your browser.
+Open [http://localhost:3000](http://localhost:3000) or open `index.html` directly in your browser.

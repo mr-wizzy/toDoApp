@@ -1,0 +1,12 @@
+{
+  "name": "to-do-app-js",
+  "version": "1.0.0",
+  "description": "Pure JavaScript Single-Page To-Do Application with Task Notes support",
+  "main": "index.html",
+  "scripts": {
+    "start": "npx serve ."
+  },
+  "keywords": ["todo", "javascript", "spa", "notes"],
+  "author": "mr-wizzy",
+  "license": "MIT"
+}

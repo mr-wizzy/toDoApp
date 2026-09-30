@@ -1,5 +1,5 @@
 /* ==========================================================================
-   TaskFlow Single Page Application CSS - Dark Glassmorphism Design System
+   TaskFlow SPA - Dark Glassmorphism CSS Design System
    ========================================================================== */
 
 :root {
@@ -205,37 +205,6 @@ body {
   box-shadow: 0 4px 20px rgba(56, 189, 248, 0.4);
 }
 
-.btn-secondary {
-  padding: 8px 16px;
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid var(--border-light);
-  border-radius: var(--radius-sm);
-  color: var(--text-secondary);
-  font-weight: 500;
-  cursor: pointer;
-  transition: var(--transition-fast);
-}
-
-.btn-secondary:hover {
-  background: rgba(255, 255, 255, 0.15);
-  color: white;
-}
-
-/* Optional Task Description Expander */
-.desc-toggle-wrapper {
-  margin-top: 10px;
-}
-
-.btn-link {
-  background: none;
-  border: none;
-  color: var(--accent-cyan);
-  font-size: 0.85rem;
-  cursor: pointer;
-  padding: 0;
-  text-decoration: underline;
-}
-
 /* Search & Filter Toolbar */
 .toolbar-row {
   display: flex;
@@ -292,7 +261,7 @@ body {
   color: var(--accent-cyan);
 }
 
-/* Task Stream & Cards */
+/* Task Cards Stream */
 .task-list {
   display: flex;
   flex-direction: column;
@@ -486,7 +455,7 @@ body {
   color: white;
 }
 
-/* Task Actions */
+/* Actions */
 .task-actions {
   display: flex;
   align-items: center;
@@ -514,7 +483,7 @@ body {
   background: rgba(244, 63, 94, 0.15);
 }
 
-/* Note Drawer / Expander Section */
+/* Single Page Note Expander Drawer */
 .notes-drawer {
   margin-top: 16px;
   padding-top: 16px;
@@ -608,7 +577,7 @@ body {
   opacity: 0.6;
 }
 
-/* Toast Alerts */
+/* Toast Notifications */
 .toast-container {
   position: fixed;
   bottom: 24px;

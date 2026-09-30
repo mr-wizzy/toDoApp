@@ -1,20 +1,8 @@
-# Byte-compiled / optimized files
-__pycache__/
-*.py[cod]
-*$py.class
+# Dependency directories
+node_modules/
 
-# Virtual environments
-venv/
-env/
-ENV/
-.venv/
-
-# Django / Database
-*.sqlite3
-*.log
-
-# IDE & OS files
-.vscode/
-.idea/
+# OS and Editor files
 .DS_Store
 Thumbs.db
+.vscode/
+.idea/
