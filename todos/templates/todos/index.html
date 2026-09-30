@@ -1,0 +1,102 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TaskFlow — Single Page To-Do & Task Notes</title>
+  
+  <!-- Modern Typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- CSS Stylesheet -->
+  <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+</head>
+<body>
+  {% csrf_token %}
+
+  <div class="app-container">
+    <!-- Header & Dashboard Stats -->
+    <header class="header-card">
+      <div class="brand-title">
+        <span class="brand-icon">⚡</span>
+        <div>
+          <h1>TaskFlow SPA</h1>
+          <p style="font-size: 0.85rem; color: var(--text-muted);">Manage your tasks & inline notes on a single screen</p>
+        </div>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-box">
+          <div class="stat-value" id="statTotal">{{ stats.total }}</div>
+          <div class="stat-label">Total</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-value" id="statPending" style="color: var(--accent-cyan);">{{ stats.pending }}</div>
+          <div class="stat-label">Active</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-value" id="statCompleted" style="color: var(--status-completed);">{{ stats.completed }}</div>
+          <div class="stat-label">Done</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-value" id="statOverdue" style="color: var(--status-high);">{{ stats.overdue }}</div>
+          <div class="stat-label">Overdue</div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Quick Task Creation Panel -->
+    <section class="controls-card">
+      <form id="quickTaskForm">
+        <div class="task-form-grid">
+          <input type="text" id="taskTitle" class="form-control" placeholder="What needs to be done?" required autocomplete="off">
+          
+          <select id="taskPriority" class="form-select">
+            <option value="MEDIUM">Priority: Med</option>
+            <option value="HIGH">Priority: High ⚡</option>
+            <option value="LOW">Priority: Low</option>
+          </select>
+
+          <input type="date" id="taskDueDate" class="form-control">
+
+          <button type="submit" class="btn-primary">
+            <span>➕</span> Add Task
+          </button>
+        </div>
+
+        <div class="desc-toggle-wrapper">
+          <textarea id="taskDesc" class="form-control" placeholder="Add optional details or context..." rows="2" style="margin-top: 10px;"></textarea>
+        </div>
+      </form>
+    </section>
+
+    <!-- Search & Filter Bar -->
+    <div class="toolbar-row">
+      <div class="search-box">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="taskSearchInput" class="form-control" placeholder="Search tasks or note contents...">
+      </div>
+
+      <div class="filter-tabs">
+        <button class="tab-btn active" data-filter="all">All Tasks</button>
+        <button class="tab-btn" data-filter="active">Active</button>
+        <button class="tab-btn" data-filter="completed">Completed</button>
+      </div>
+    </div>
+
+    <!-- Dynamic Task Stream -->
+    <main class="task-list" id="taskListContainer">
+      <!-- Task Cards rendered dynamically via JS -->
+    </main>
+  </div>
+
+  <!-- Toast Alert Notifications -->
+  <div id="toastContainer" class="toast-container"></div>
+
+  <!-- Main SPA JavaScript -->
+  <script src="{% static 'js/app.js' %}"></script>
+</body>
+</html>
